@@ -7,6 +7,7 @@ from typing import List, Optional
 from .curriculum import generate_curriculum, Topic
 from .planner import build_schedule, DayPlan
 from .note import generate_notes, StudyNotes
+from .quiz import generate_quiz, Quiz
 
 
 app = FastAPI(title="StudyFlow")
@@ -47,7 +48,15 @@ class ExplainRequest(BaseModel):
     subject: str
     topic: str
     subtopic: Optional[str] = None
-    question: str  # e.g. "Why is DFS O(V+E)?"
+    question: str
+
+
+class QuizRequest(BaseModel):
+    subject: str
+    topic: str
+    subtopic: Optional[str] = None
+    notes_content: Optional[str] = None  # study notes to base questions on
+    num_questions: int = 5
 
 
 
@@ -85,6 +94,18 @@ def get_study_notes(request: NotesRequest):
         subject=request.subject,
         topic_title=request.topic,
         subtopic=request.subtopic,
+    )
+
+
+@app.post("/quiz", response_model=Quiz)
+def get_quiz(request: QuizRequest):
+    """Generate quiz questions based on study notes content."""
+    return generate_quiz(
+        subject=request.subject,
+        topic=request.topic,
+        subtopic=request.subtopic,
+        notes_content=request.notes_content,
+        num_questions=request.num_questions,
     )
 
 

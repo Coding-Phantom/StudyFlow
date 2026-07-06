@@ -1,10 +1,3 @@
-"""
-Study Notes Agent
------------------
-Generates concise study guides for a specific topic or subtopic.
-One card per topic — enough to orient the user before deeper study.
-"""
-
 from pydantic import BaseModel
 from typing import List, Optional
 import ollama
