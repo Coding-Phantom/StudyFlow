@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from datetime import date, datetime
-from typing import List, Optional
+from contextlib import asynccontextmanager
+from datetime import date
+from typing import Any, List, Optional
 
 import ollama
 
@@ -12,11 +13,23 @@ from .note import generate_notes, StudyNotes
 from .quiz import generate_quiz, Quiz, Question
 from .evaluation import evaluate_quiz, EvaluateResult
 from .adaptation import recommend_adaptation, AdaptationResult
+from .database import (
+    get_latest_plan,
+    get_mastery_scores,
+    init_db,
+    save_plan,
+    save_quiz_attempt,
+)
 
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
 
-app = FastAPI(title="StudyFlow")
+
+app = FastAPI(title="StudyFlow", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -35,6 +48,7 @@ class PlanRequest(BaseModel):
 
 
 class PlanResponse(BaseModel):
+    plan_id: int
     subject: str
     deadline: date
     daily_hours: float
@@ -77,6 +91,10 @@ class EvaluateRequest(BaseModel):
     answers: List[UserAnswer]
 
 
+class EvaluationResponse(EvaluateResult):
+    attempt_id: int
+
+
 class AdaptationRequest(BaseModel):
     subject: str
     topic: str
@@ -90,6 +108,15 @@ def root():
     return {"message": "StudyFlow API is running"}
 
 
+@app.get("/state")
+def get_state() -> dict[str, Any]:
+    """Return the current local StudyFlow state."""
+    return {
+        "latest_plan": get_latest_plan(),
+        "mastery_scores": get_mastery_scores(),
+    }
+
+
 @app.post("/plan", response_model=PlanResponse)
 def create_plan(request: PlanRequest):
     """Generate curriculum + schedule from a subject and deadline."""
@@ -100,8 +127,18 @@ def create_plan(request: PlanRequest):
 
     curriculum = generate_curriculum(request.subject)
     schedule = build_schedule(curriculum, today, total_days)
+    plan_id = save_plan(
+        subject=request.subject,
+        deadline=request.deadline,
+        daily_hours=request.daily_hours,
+        total_days=total_days,
+        start_date=today,
+        curriculum=curriculum,
+        schedule=schedule,
+    )
 
     return PlanResponse(
+        plan_id=plan_id,
         subject=request.subject,
         deadline=request.deadline,
         daily_hours=request.daily_hours,
@@ -163,14 +200,30 @@ def get_quiz(request: QuizRequest):
         num_questions=request.num_questions,
     )
 
-@app.post("/evaluate", response_model=EvaluateResult)
+@app.post("/evaluate", response_model=EvaluationResponse)
 def evaluate_answers(request: EvaluateRequest):
     """Evaluate user answers to quiz questions."""
-    return evaluate_quiz(
+    result = evaluate_quiz(
         subject=request.subject,
         topic=request.topic,
         questions=request.questions,
         answers=[a.model_dump() for a in request.answers],
+    )
+    attempt_id = save_quiz_attempt(
+        subject=request.subject,
+        topic=request.topic,
+        questions=request.questions,
+        answers=[a.model_dump() for a in request.answers],
+        score=result.score,
+        feedback=result.feedback,
+        weak_concepts=result.weak_concepts,
+    )
+
+    return EvaluationResponse(
+        attempt_id=attempt_id,
+        score=result.score,
+        feedback=result.feedback,
+        weak_concepts=result.weak_concepts,
     )
 
 
