@@ -25,9 +25,9 @@ def build_schedule(
     for topic in curriculum:
         if topic.subtopics: 
             for subtopic in topic.subtopics:
-                subtopics.append(StudyTask(topic=topic.name, subtopic=subtopic))
+                subtopics.append(StudyTask(topic=topic.title, subtopic=subtopic))
         else:
-            subtopics.append(StudyTask(topic=topic.name))
+            subtopics.append(StudyTask(topic=topic.title))
 
     # Step 2: Pre-create empty DayPlans for each day
     from datetime import timedelta

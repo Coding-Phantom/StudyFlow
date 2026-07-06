@@ -5,7 +5,7 @@ import json
 
 # Ex: topic = "calculus", subtopics = "limits, derivatives, integrals"
 class Topic(BaseModel):
-    name: str
+    title: str
     subtopics: List[str] = []
 
 
@@ -22,9 +22,9 @@ def generate_curriculum(subject: str) -> List[Topic]:
                 "role": "user",
                 "content":(
                   f"Generate a curriculum for the subject: {subject}. "
-                  "Return only a JSON of list of objects"
-                  "Each object has a 'name' (the topic) and a 'subtoptics' list."
-                  '[{"name": "Topic A", "subtopics": ["Subtopic 1", "Subtopic 2"]}]\n'
+                  "Return only a JSON list of objects. "
+                  "Each object has a 'title' (the topic name) and a 'subtopics' list. "
+                  '[{"title": "Topic A", "subtopics": ["Subtopic 1", "Subtopic 2"]}]\n'
                     "Do NOT include any other text or explanation."
                 )
             }
@@ -41,6 +41,6 @@ def generate_curriculum(subject: str) -> List[Topic]:
 
 
 if __name__ == "__main__":
-    topics = generate_curriculum("Calculus Chain Rule")
+    topics = generate_curriculum("Python Basics")
     for t in topics:
-        print(f"{t.name}: {', '.join(t.subtopics)}")
+        print(f"{t.title}: {', '.join(t.subtopics)}")

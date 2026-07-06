@@ -2,15 +2,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from datetime import date, datetime
-from typing import List
+from typing import List, Optional
 
 from .curriculum import generate_curriculum, Topic
 from .planner import build_schedule, DayPlan
+from .note import generate_notes, StudyNotes
 
-# ── FastAPI app ──────────────────────────────────────────────────
+
 app = FastAPI(title="StudyFlow")
 
-# Allow requests from the React dev server (Vite default is port 5173)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -18,7 +18,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Request / Response models ────────────────────────────────────
+
+
 
 class PlanRequest(BaseModel):
     subject: str
@@ -36,7 +37,19 @@ class PlanResponse(BaseModel):
     schedule: List[DayPlan]
 
 
-# ── Endpoints ────────────────────────────────────────────────────
+class NotesRequest(BaseModel):
+    subject: str
+    topic: str
+    subtopic: Optional[str] = None
+
+
+class ExplainRequest(BaseModel):
+    subject: str
+    topic: str
+    subtopic: Optional[str] = None
+    question: str  # e.g. "Why is DFS O(V+E)?"
+
+
 
 @app.get("/")
 def root():
@@ -45,23 +58,15 @@ def root():
 
 @app.post("/plan", response_model=PlanResponse)
 def create_plan(request: PlanRequest):
-    """
-    Takes a subject + deadline + daily hours,
-    generates a curriculum and builds a study schedule.
-    """
-    # Calculate how many days we have to study
+    """Generate curriculum + schedule from a subject and deadline."""
     today = date.today()
     total_days = (request.deadline - today).days
     if total_days < 1:
-        total_days = 1  # at least 1 day
+        total_days = 1
 
-    # Step 1: Generate curriculum (uses LLM)
     curriculum = generate_curriculum(request.subject)
-
-    # Step 2: Build schedule (pure logic, no LLM)
     schedule = build_schedule(curriculum, today, total_days)
 
-    # Step 3: Return everything
     return PlanResponse(
         subject=request.subject,
         deadline=request.deadline,
@@ -71,3 +76,44 @@ def create_plan(request: PlanRequest):
         curriculum=curriculum,
         schedule=schedule,
     )
+
+
+@app.post("/notes", response_model=StudyNotes)
+def get_study_notes(request: NotesRequest):
+    """Generate concise study notes for a specific topic/subtopic."""
+    return generate_notes(
+        subject=request.subject,
+        topic_title=request.topic,
+        subtopic=request.subtopic,
+    )
+
+
+@app.post("/explain")
+def explain_concept(request: ExplainRequest):
+    """User-driven deeper explanations (optional agent, no state change)."""
+    # Simple: call Ollama directly to explain the concept
+    import ollama
+
+    if request.subtopic:
+        target = f"{request.topic} - {request.subtopic}"
+    else:
+        target = request.topic
+
+    response = ollama.chat(
+        model="llama3.1:8b",
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a tutor. Explain the concept clearly and concisely."
+            },
+            {
+                "role": "user",
+                "content": (
+                    f"In the context of learning {request.subject}, "
+                    f"explain: {request.question} "
+                    f"(related to {target})"
+                )
+            }
+        ])
+
+    return {"explanation": response["message"]["content"]}
