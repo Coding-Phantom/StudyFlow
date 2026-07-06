@@ -30,6 +30,12 @@ Thumbs.db
 .env
 *.env.local
 
+# Local database
+backend/data/
+*.db
+*.sqlite
+*.sqlite3
+
 # Testing
 .pytest_cache/
 .coverage
