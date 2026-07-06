@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 import ollama
 import json
+from .config import LLAMA_MODEL
 
 
 class StudyNotes(BaseModel):
@@ -27,7 +28,7 @@ def generate_notes(
         target = topic_title
 
     response = ollama.chat(
-        model="llama3.1:8b",
+        model=LLAMA_MODEL,
         messages=[
             {
                 "role": "system",

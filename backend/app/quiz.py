@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 import ollama
 import json
+from .config import QWEN_MODEL
 
 
 class Question(BaseModel):
@@ -41,29 +42,67 @@ def generate_quiz(
     else:
         content_instruction = f"Generate questions about {target}."
 
+    mc_count = max(1, num_questions - 1)  # all but one are MC
+    sa_count = 1 if num_questions > 1 else 0  # at most 1 short answer
+
+    few_shot_example = '''Example of a correct quiz on "Algebra Basics":
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "multiple_choice",
+      "prompt": "What is the value of x in the equation 2x + 3 = 7?",
+      "options": ["x = 1", "x = 2", "x = 3", "x = 4"],
+      "correct_answer": "x = 2",
+      "topic": "Algebra Basics",
+      "subtopic": "Linear Equations"
+    },
+    {
+      "id": "q2",
+      "type": "multiple_choice",
+      "prompt": "If a = 5 and b = 3, what is a + b?",
+      "options": ["5", "8", "15", "2"],
+      "correct_answer": "8",
+      "topic": "Algebra Basics",
+      "subtopic": "Variables"
+    }
+  ]
+}'''
+
     prompt_text = (
         f"You are generating a quiz for {target} "
         f"as part of learning {subject}. "
         f"{content_instruction}\n\n"
+        "Here is an example of the correct format:\n"
+        f"{few_shot_example}\n\n"
+        "IMPORTANT RULES:\n"
+        f"- Generate EXACTLY {num_questions} questions.\n"
+        f"- Make {mc_count} multiple_choice and {sa_count} short_answer.\n"
+        "- Do NOT generate 'conceptual' type questions.\n"
+        "- For multiple_choice: correct_answer MUST be the full option text, NOT a letter (A/B/C/D).\n"
+        "- For example, if options are [\"x = 1\", \"x = 2\", \"x = 3\"], correct_answer is \"x = 2\", not \"B\".\n"
+        "- Double-check that every correct_answer is factually correct for its question.\n"
+        "- Double-check math: 2 + 2 should NOT have correct_answer \"5\".\n\n"
         "Return ONLY valid JSON with a 'questions' array. "
         "Each question object has:\n"
         '"id": unique string like "q1", "q2"\n'
-        '"type": one of "multiple_choice", "short_answer", "conceptual"\n'
+        '"type": "multiple_choice" or "short_answer"\n'
         '"prompt": the question text\n'
-        '"options": an array of strings (ONLY for multiple_choice, otherwise null)\n'
-        '"correct_answer": the correct answer\n'
+        '"options": an array of 4 answer choices (for multiple_choice only, otherwise null)\n'
+        '"correct_answer": the correct answer text (NOT a letter)\n'
         '"topic": the topic name\n'
         '"subtopic": the subtopic name (or null)\n\n'
-        "Include exactly 2 multiple_choice, 2 short_answer, and 1 conceptual question. "
-        f"Do NOT include any text outside the JSON."
+        f"I repeat: generate exactly {num_questions} questions. "
+        f"Exactly {mc_count} multiple_choice and {sa_count} short_answer. "
+        "Do NOT include any text outside the JSON."
     )
 
     response = ollama.chat(
-        model="llama3.1:8b",
+        model=QWEN_MODEL,
         messages=[
             {
                 "role": "system",
-                "content": "You create quizzes based on study notes."
+                "content": "You create quizzes. Always generate exactly the requested number of questions."
             },
             {
                 "role": "user",
@@ -83,9 +122,24 @@ def generate_quiz(
 
     data = json.loads(raw_text)
     if isinstance(data, list):
-        questions = [Question(**q) for q in data]
+        raw_questions = data
     else:
-        questions = [Question(**q) for q in data["questions"]]
+        raw_questions = data["questions"]
+
+    # Parse and enforce count — take only first num_questions
+    questions = [Question(**q) for q in raw_questions][:num_questions]
+
+    # If we got fewer than requested, pad with generated MC questions (rare)
+    while len(questions) < num_questions:
+        questions.append(Question(
+            id=f"q{len(questions)+1}",
+            type="multiple_choice",
+            prompt=f"Additional question about {target}",
+            options=["Option A", "Option B", "Option C", "Option D"],
+            correct_answer="Option A",
+            topic=topic,
+            subtopic=subtopic,
+        ))
 
     return Quiz(
         topic=topic,

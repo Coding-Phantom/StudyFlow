@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import List
 import ollama
 import json
+from .config import LLAMA_MODEL
 
 
 class AdaptationResult(BaseModel):
@@ -37,7 +38,7 @@ def recommend_adaptation(
     )
 
     response = ollama.chat(
-        model="llama3.1:8b",
+        model=LLAMA_MODEL,
         messages=[
             {
                 "role": "system",

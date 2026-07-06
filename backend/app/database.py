@@ -217,6 +217,48 @@ def get_latest_plan() -> Optional[dict[str, Any]]:
         return _hydrate_plan(connection, plan)
 
 
+def get_all_plans() -> list[dict[str, Any]]:
+    with get_connection() as connection:
+        rows = connection.execute(
+            """
+            SELECT id, subject, deadline, daily_hours, total_days, start_date, created_at
+            FROM study_plans
+            ORDER BY created_at DESC, id DESC
+            """
+        ).fetchall()
+        return [dict(row) for row in rows]
+
+
+def get_plan_by_id(plan_id: int) -> Optional[dict[str, Any]]:
+    with get_connection() as connection:
+        plan = connection.execute(
+            """
+            SELECT *
+            FROM study_plans
+            WHERE id = ?
+            """,
+            (plan_id,),
+        ).fetchone()
+
+        if plan is None:
+            return None
+
+        return _hydrate_plan(connection, plan)
+
+
+def complete_task(task_id: int) -> bool:
+    with get_connection() as connection:
+        cursor = connection.execute(
+            """
+            UPDATE study_tasks
+            SET completed = 1
+            WHERE id = ?
+            """,
+            (task_id,),
+        )
+        return cursor.rowcount > 0
+
+
 def get_mastery_scores() -> list[dict[str, Any]]:
     with get_connection() as connection:
         rows = connection.execute(
