@@ -82,7 +82,6 @@ def generate_quiz(
         raise ValueError("LLM returned empty response")
 
     data = json.loads(raw_text)
-    # LLM may return a bare array or an object with a "questions" key
     if isinstance(data, list):
         questions = [Question(**q) for q in data]
     else:

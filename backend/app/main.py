@@ -4,10 +4,16 @@ from pydantic import BaseModel
 from datetime import date, datetime
 from typing import List, Optional
 
+import ollama
+
 from .curriculum import generate_curriculum, Topic
 from .planner import build_schedule, DayPlan
 from .note import generate_notes, StudyNotes
-from .quiz import generate_quiz, Quiz
+from .quiz import generate_quiz, Quiz, Question
+from .evaluation import evaluate_quiz, EvaluateResult
+from .adaptation import recommend_adaptation, AdaptationResult
+
+
 
 
 app = FastAPI(title="StudyFlow")
@@ -59,6 +65,25 @@ class QuizRequest(BaseModel):
     num_questions: int = 5
 
 
+class UserAnswer(BaseModel):
+    question_id: str
+    user_answer: str
+
+
+class EvaluateRequest(BaseModel):
+    subject: str
+    topic: str
+    questions: List[Question]
+    answers: List[UserAnswer]
+
+
+class AdaptationRequest(BaseModel):
+    subject: str
+    topic: str
+    score: int
+    weak_concepts: List[str]
+
+
 
 @app.get("/")
 def root():
@@ -97,23 +122,9 @@ def get_study_notes(request: NotesRequest):
     )
 
 
-@app.post("/quiz", response_model=Quiz)
-def get_quiz(request: QuizRequest):
-    """Generate quiz questions based on study notes content."""
-    return generate_quiz(
-        subject=request.subject,
-        topic=request.topic,
-        subtopic=request.subtopic,
-        notes_content=request.notes_content,
-        num_questions=request.num_questions,
-    )
-
-
 @app.post("/explain")
 def explain_concept(request: ExplainRequest):
     """User-driven deeper explanations (optional agent, no state change)."""
-    # Simple: call Ollama directly to explain the concept
-    import ollama
 
     if request.subtopic:
         target = f"{request.topic} - {request.subtopic}"
@@ -138,3 +149,37 @@ def explain_concept(request: ExplainRequest):
         ])
 
     return {"explanation": response["message"]["content"]}
+
+
+
+@app.post("/quiz", response_model=Quiz)
+def get_quiz(request: QuizRequest):
+    """Generate quiz questions based on study notes content."""
+    return generate_quiz(
+        subject=request.subject,
+        topic=request.topic,
+        subtopic=request.subtopic,
+        notes_content=request.notes_content,
+        num_questions=request.num_questions,
+    )
+
+@app.post("/evaluate", response_model=EvaluateResult)
+def evaluate_answers(request: EvaluateRequest):
+    """Evaluate user answers to quiz questions."""
+    return evaluate_quiz(
+        subject=request.subject,
+        topic=request.topic,
+        questions=request.questions,
+        answers=[a.model_dump() for a in request.answers],
+    )
+
+
+@app.post("/adapt", response_model=AdaptationResult)
+def adapt_study_plan(request: AdaptationRequest):
+    """Recommend study adjustments based on evaluation results."""
+    return recommend_adaptation(
+        subject=request.subject,
+        topic=request.topic,
+        score=request.score,
+        weak_concepts=request.weak_concepts,
+    )
