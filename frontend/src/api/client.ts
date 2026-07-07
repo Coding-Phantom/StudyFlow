@@ -40,6 +40,14 @@ export const api = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+  activatePlan: (id: number) =>
+    request<{ status: string; active_plan_id: number }>(`/plans/${id}/activate`, {
+      method: "POST",
+    }),
+  deletePlan: (id: number) =>
+    request<{ status: string; deleted_plan_id: number }>(`/plans/${id}`, {
+      method: "DELETE",
+    }),
 
   // Tasks
   completeTask: (taskId: number) =>

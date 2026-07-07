@@ -13,10 +13,25 @@ class EvaluateResult(BaseModel):
     weak_concepts: list[str]
 
 
+def _normalize(text: str) -> str:
+    """Normalize text for comparison: lowercase, strip, remove extra spaces and common punctuation."""
+    text = text.strip().lower()
+    # Remove common punctuation that shouldn't affect correctness
+    for ch in ".,;:!?'\"-":
+        text = text.replace(ch, " ")
+    # Collapse multiple spaces
+    text = " ".join(text.split())
+    # Remove leading articles
+    for article in ["the ", "a ", "an "]:
+        if text.startswith(article):
+            text = text[len(article):]
+    return text.strip()
+
+
 def _answers_match(user_answer: str, correct_answer: str, question: Question) -> bool:
-    """Smart comparison that handles multiple choice letter labels (A/B/C/D)."""
-    ua = user_answer.strip().lower()
-    ca = correct_answer.strip().lower()
+    """Lenient comparison that handles multiple choice letter labels and short answer variations."""
+    ua = _normalize(user_answer)
+    ca = _normalize(correct_answer)
 
     # 1. Direct match
     if ua == ca:
@@ -26,7 +41,21 @@ def _answers_match(user_answer: str, correct_answer: str, question: Question) ->
     if ua in ca or ca in ua:
         return True
 
-    # 3. Multiple choice: if correct_answer is a letter (A/B/C/D), compare by index
+    # 3. For short answer, be extra generous:
+    #    Check if the key words from the correct answer appear in the user answer
+    if question.type == "short_answer":
+        ca_words = set(ca.split())
+        ua_words = set(ua.split())
+        # If all significant words from correct answer appear in user answer
+        # (ignore very short words like "is", "to", "of", etc.)
+        significant = {w for w in ca_words if len(w) > 2}
+        if significant and significant.issubset(ua_words):
+            return True
+        # Also if more than half the correct answer words match
+        if ca_words and len(ca_words & ua_words) >= len(ca_words) * 0.5:
+            return True
+
+    # 4. Multiple choice: if correct_answer is a letter (A/B/C/D), compare by index
     if question.type == "multiple_choice" and question.options:
         # Extract a single letter if the correct answer looks like "a", "b", "option a", etc.
         letter_match = re.match(r"^(?:option\s+)?([a-d])$", ca)
@@ -103,7 +132,22 @@ def evaluate_quiz(
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a fair grader. Evaluate the user's answers strictly against the correct answers."
+                    "content": (
+                        "You are a very generous grader. The goal is to help the student learn, "
+                        "not to trick them on minor wording differences.\n\n"
+                        "For MULTIPLE CHOICE: mark correct only if the user selected the correct option.\n\n"
+                        "For SHORT ANSWER: Be EXTREMELY generous. Accept the answer as correct if the user "
+                        "demonstrates understanding of the key concept, even if the wording is different, "
+                        "even if it's incomplete, even if there are minor errors. If the answer could "
+                        "reasonably be interpreted as correct, mark it correct.\n\n"
+                        "Examples of generous grading:\n"
+                        "- Correct: 'Paris' | User: 'paris' → CORRECT\n"
+                        "- Correct: 'Paris' | User: 'I think it's Paris' → CORRECT\n"
+                        "- Correct: 'A tree where left < right' | User: 'left smaller right larger' → CORRECT\n"
+                        "- Correct: 'O(n)' | User: 'linear time' → CORRECT\n"
+                        "- Correct: 'Insertion Sort' | User: 'insert sort' → CORRECT\n\n"
+                        "When in doubt, give the student the benefit of the doubt and mark it correct."
+                    )
                 },
                 {"role": "user", "content": prompt_text},
             ],

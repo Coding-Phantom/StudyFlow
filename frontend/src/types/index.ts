@@ -92,5 +92,6 @@ export interface MasteryScore {
 
 export interface AppState {
   latest_plan: Plan | null;
+  active_plan_id: number | null;
   mastery_scores: MasteryScore[];
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { api } from "../api/client";
 import type {
   Plan,
@@ -14,9 +14,13 @@ type Phase = "setup" | "taking" | "results";
 
 export default function QuizPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const preselectedTopic = searchParams.get("topic") ?? "";
   const preselectedSubtopic = searchParams.get("subtopic") ?? "";
+
+  // Notes content passed from LearnPage (via location.state)
+  const notesContent = (location.state as Record<string, string>)?.notesContent ?? "";
 
   // Plan / curriculum for topic selection
   const [plan, setPlan] = useState<Plan | null>(null);
@@ -74,6 +78,7 @@ export default function QuizPage() {
         subject: plan.subject,
         topic: selectedTopic,
         subtopic: selectedSubtopic || undefined,
+        notes_content: notesContent || undefined,
         num_questions: numQuestions,
       });
       setQuestions(quiz.questions);

@@ -141,6 +141,51 @@ def generate_quiz(
             subtopic=subtopic,
         ))
 
+    # --- Self-verification step ---
+    # For each multiple choice question, ask the model to answer its own question.
+    # If it picks a different answer than it originally wrote, use the verified answer.
+    try:
+        verify_prompt = (
+            "Here are some quiz questions. For each, reply ONLY with the correct answer text.\n"
+            "Return a JSON object mapping question IDs to the correct answer text.\n"
+            "Example: {\"q1\": \"Paris\", \"q2\": \"x = 2\"}\n\n"
+        )
+        for q in questions:
+            if q.type == "multiple_choice" and q.options:
+                opts = ", ".join(q.options)
+                verify_prompt += f'Question "{q.id}": {q.prompt} Options: [{opts}]\n'
+            elif q.type == "short_answer":
+                verify_prompt += f'Question "{q.id}": {q.prompt}\n'
+
+        verify_prompt += "\nReply ONLY with the JSON object."
+
+        verify_response = ollama.chat(
+            model=QWEN_MODEL,
+            messages=[
+                {"role": "system", "content": "You answer quiz questions accurately. Reply only with JSON."},
+                {"role": "user", "content": verify_prompt},
+            ],
+            options={"temperature": 0},
+        )
+
+        verify_raw = verify_response["message"]["content"].strip()
+        if verify_raw.startswith("```"):
+            verify_raw = verify_raw.split("\n", 1)[1].rsplit("\n```", 1)[0].strip()
+
+        if verify_raw:
+            verified = json.loads(verify_raw)
+            for q in questions:
+                if q.id in verified:
+                    verified_answer = verified[q.id].strip()
+                    # Only override if different from original
+                    if verified_answer.lower() != q.correct_answer.strip().lower():
+                        # Make sure the verified answer is actually one of the options
+                        if not q.options or verified_answer in q.options:
+                            q.correct_answer = verified_answer
+    except Exception:
+        # self-verification failed — keep original answers
+        pass
+
     return Quiz(
         topic=topic,
         subtopic=subtopic,

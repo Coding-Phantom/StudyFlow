@@ -10,13 +10,41 @@ interface Props {
   isCorrect?: boolean;
 }
 
-/** Smart comparison that handles MC letter labels (A/B/C/D) */
+/** Normalize text for generous comparison */
+function normalize(text: string): string {
+  let t = text.trim().toLowerCase();
+  // Remove common punctuation
+  for (const ch of ".,;:!?'\"-") {
+    t = t.replaceAll(ch, " ");
+  }
+  // Collapse spaces
+  t = t.replace(/\s+/g, " ").trim();
+  // Remove leading articles
+  for (const article of ["the ", "a ", "an "]) {
+    if (t.startsWith(article)) t = t.slice(article.length);
+  }
+  return t.trim();
+}
+
+/** Lenient comparison that handles MC letter labels and short answer variations */
 function answersMatch(userAnswer: string, correctAnswer: string, question: Question): boolean {
-  const ua = userAnswer.trim().toLowerCase();
-  const ca = correctAnswer.trim().toLowerCase();
+  const ua = normalize(userAnswer);
+  const ca = normalize(correctAnswer);
 
   if (ua === ca) return true;
   if (ua.includes(ca) || ca.includes(ua)) return true;
+
+  // For short answer: check key word overlap
+  if (question.type === "short_answer") {
+    const caWords = new Set(ca.split(/\s+/));
+    const uaWords = new Set(ua.split(/\s+/));
+    const significant = new Set([...caWords].filter((w) => w.length > 2));
+    if (significant.size > 0 && [...significant].every((w) => uaWords.has(w))) return true;
+    if (caWords.size > 0) {
+      const intersection = new Set([...caWords].filter((w) => uaWords.has(w)));
+      if (intersection.size >= caWords.size * 0.5) return true;
+    }
+  }
 
   if (question.type === "multiple_choice" && question.options) {
     const letterMatch = ca.match(/^(?:option\s+)?([a-d])$/);
@@ -25,12 +53,12 @@ function answersMatch(userAnswer: string, correctAnswer: string, question: Quest
     if (correctLetter) {
       const idx = correctLetter.charCodeAt(0) - 97;
       if (idx >= 0 && idx < question.options.length) {
-        return ua === question.options[idx].trim().toLowerCase();
+        return ua === normalize(question.options[idx]);
       }
     }
 
     for (const opt of question.options) {
-      const optLower = opt.trim().toLowerCase();
+      const optLower = normalize(opt);
       if (optLower === ca && optLower === ua) return true;
     }
   }

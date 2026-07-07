@@ -6,14 +6,19 @@ import PlanCard from "../components/PlanCard";
 
 export default function PlansPage() {
   const [plans, setPlans] = useState<PlanSummary[]>([]);
+  const [activePlanId, setActivePlanId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const fetchPlans = async () => {
     setLoading(true);
     try {
-      const data = await api.getPlans();
-      setPlans(data);
+      const [plansData, stateData] = await Promise.all([
+        api.getPlans(),
+        api.getState(),
+      ]);
+      setPlans(plansData);
+      setActivePlanId(stateData.active_plan_id);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load plans");
     } finally {
@@ -26,7 +31,7 @@ export default function PlansPage() {
   }, []);
 
   const handlePlanCreated = (plan: Plan) => {
-    // Prepend the new plan to the list
+    setActivePlanId(plan.plan_id);
     setPlans((prev) => [
       {
         id: plan.plan_id,
@@ -39,6 +44,17 @@ export default function PlansPage() {
       },
       ...prev,
     ]);
+  };
+
+  const handleActivate = (planId: number) => {
+    setActivePlanId(planId);
+  };
+
+  const handleDelete = (planId: number) => {
+    setPlans((prev) => prev.filter((p) => p.id !== planId));
+    if (activePlanId === planId) {
+      setActivePlanId(null);
+    }
   };
 
   return (
@@ -81,7 +97,13 @@ export default function PlansPage() {
         {!loading && plans.length > 0 && (
           <div className="space-y-3">
             {plans.map((plan) => (
-              <PlanCard key={plan.id} plan={plan} />
+              <PlanCard
+                key={plan.id}
+                plan={plan}
+                isActive={plan.id === activePlanId}
+                onActivate={handleActivate}
+                onDelete={handleDelete}
+              />
             ))}
           </div>
         )}

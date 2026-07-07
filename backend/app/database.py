@@ -92,8 +92,34 @@ def init_db() -> None:
                 updated_at TEXT NOT NULL,
                 UNIQUE(subject, concept)
             );
+
+            CREATE TABLE IF NOT EXISTS app_settings (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            );
             """
         )
+
+
+def get_setting(key: str) -> Optional[str]:
+    with get_connection() as connection:
+        row = connection.execute(
+            "SELECT value FROM app_settings WHERE key = ?", (key,)
+        ).fetchone()
+        return row["value"] if row else None
+
+
+def set_setting(key: str, value: str) -> None:
+    with get_connection() as connection:
+        connection.execute(
+            "INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)",
+            (key, value),
+        )
+
+
+def delete_setting(key: str) -> None:
+    with get_connection() as connection:
+        connection.execute("DELETE FROM app_settings WHERE key = ?", (key,))
 
 
 def save_plan(
@@ -118,6 +144,11 @@ def save_plan(
             (subject, deadline.isoformat(), daily_hours, total_days, start_date.isoformat(), now),
         )
         plan_id = int(cursor.lastrowid)
+        # Auto-activate the new plan in the same transaction
+        connection.execute(
+            "INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)",
+            ("active_plan_id", str(plan_id)),
+        )
 
         for topic_position, topic in enumerate(curriculum, start=1):
             topic_cursor = connection.execute(
@@ -201,6 +232,7 @@ def save_quiz_attempt(
 
 
 def get_latest_plan() -> Optional[dict[str, Any]]:
+    """Return the most recently created plan."""
     with get_connection() as connection:
         plan = connection.execute(
             """
@@ -215,6 +247,39 @@ def get_latest_plan() -> Optional[dict[str, Any]]:
             return None
 
         return _hydrate_plan(connection, plan)
+
+
+def get_active_plan() -> Optional[dict[str, Any]]:
+    """Return the active plan (set by user) or fall back to latest."""
+    active_plan_id = get_setting("active_plan_id")
+    if active_plan_id is not None:
+        plan = get_plan_by_id(int(active_plan_id))
+        if plan is not None:
+            return plan
+    # Fallback to latest plan
+    return get_latest_plan()
+
+
+def set_active_plan(plan_id: int) -> None:
+    """Set a plan as the active plan."""
+    set_setting("active_plan_id", str(plan_id))
+
+
+def delete_plan_by_id(plan_id: int) -> bool:
+    """Delete a plan and all its related data (CASCADE). Returns True if deleted."""
+    with get_connection() as connection:
+        cursor = connection.execute(
+            "DELETE FROM study_plans WHERE id = ?", (plan_id,)
+        )
+        if cursor.rowcount == 0:
+            return False
+        # If the deleted plan was active, clear the active setting
+        active_id = get_setting("active_plan_id")
+        if active_id and int(active_id) == plan_id:
+            connection.execute(
+                "DELETE FROM app_settings WHERE key = 'active_plan_id'"
+            )
+        return True
 
 
 def get_all_plans() -> list[dict[str, Any]]:

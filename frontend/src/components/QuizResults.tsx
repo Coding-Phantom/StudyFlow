@@ -26,35 +26,55 @@ export default function QuizResults({
   // Build a map of question_id -> user answer
   const answerMap = new Map(answers.map((a) => [a.question_id, a.user_answer]));
 
-  // Determine which questions were answered correctly
+  // Normalize text for generous comparison (must match backend evaluation.py)
+  const normalize = (text: string): string => {
+    let t = text.trim().toLowerCase();
+    for (const ch of ".,;:!?'\"-") t = t.replaceAll(ch, " ");
+    t = t.replace(/\s+/g, " ").trim();
+    for (const article of ["the ", "a ", "an "]) {
+      if (t.startsWith(article)) t = t.slice(article.length);
+    }
+    return t.trim();
+  };
+
+  // Determine which questions were answered correctly (generous matching)
   const getIsCorrect = (q: Question): boolean => {
-    const userAns = (answerMap.get(q.id) ?? "").trim().toLowerCase();
-    const correctAns = q.correct_answer.trim().toLowerCase();
+    const userAns = normalize(answerMap.get(q.id) ?? "");
+    const correctAns = normalize(q.correct_answer);
 
     // 1. Direct match
     if (userAns === correctAns) return true;
 
-    // 2. If one contains the other
+    // 2. One contains the other
     if (userAns.includes(correctAns) || correctAns.includes(userAns)) return true;
 
-    // 3. For multiple choice: compare by option index if correct_answer is a letter
+    // 3. For short answer: check key word overlap
+    if (q.type === "short_answer") {
+      const caWords = new Set(correctAns.split(/\s+/));
+      const uaWords = new Set(userAns.split(/\s+/));
+      const significant = new Set([...caWords].filter((w) => w.length > 2));
+      if (significant.size > 0 && [...significant].every((w) => uaWords.has(w))) return true;
+      if (caWords.size > 0) {
+        const intersection = new Set([...caWords].filter((w) => uaWords.has(w)));
+        if (intersection.size >= caWords.size * 0.5) return true;
+      }
+    }
+
+    // 4. For multiple choice: compare by option index if correct_answer is a letter
     if (q.type === "multiple_choice" && q.options) {
-      // Check if correct_answer is a letter like "A", "B", "C", "D" or "Option A", etc.
-      const letterMatch = correctAns.match(/^option?\s*([a-d])$/i);
+      const letterMatch = correctAns.match(/^(?:option\s+)?([a-d])$/);
       const correctLetter = letterMatch ? letterMatch[1] : correctAns.length === 1 ? correctAns : null;
 
       if (correctLetter) {
-        const idx = correctLetter.charCodeAt(0) - 97; // "a" -> 0, "b" -> 1, etc.
+        const idx = correctLetter.charCodeAt(0) - 97;
         if (idx >= 0 && idx < q.options.length) {
-          return userAns === q.options[idx].trim().toLowerCase();
+          return userAns === normalize(q.options[idx]);
         }
       }
 
-      // Also try: check if user's answer text matches correct_answer by scanning options
       for (const opt of q.options) {
-        const optLower = opt.trim().toLowerCase();
+        const optLower = normalize(opt);
         if (optLower === correctAns && optLower === userAns) return true;
-        if (optLower.includes(correctAns) && optLower === userAns) return true;
       }
     }
 

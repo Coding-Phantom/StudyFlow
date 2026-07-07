@@ -77,9 +77,14 @@ export default function LearnPage() {
   };
 
   const handleStartQuiz = (topic: string, subtopic?: string) => {
-    const params = new URLSearchParams({ topic });
-    if (subtopic) params.set("subtopic", subtopic);
-    navigate(`/quiz?${params.toString()}`);
+    navigate("/quiz", {
+      state: {
+        subject: plan?.subject ?? "",
+        topic,
+        subtopic: subtopic ?? "",
+        notesContent: notes?.summary ?? "",
+      },
+    });
   };
 
   // No plan exists

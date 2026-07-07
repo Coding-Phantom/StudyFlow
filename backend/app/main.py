@@ -17,7 +17,7 @@ from .quiz import generate_quiz, Quiz, Question
 from .evaluation import evaluate_quiz, EvaluateResult
 from .adaptation import recommend_adaptation, AdaptationResult
 from .database import (
-    get_latest_plan,
+    get_active_plan,
     get_mastery_scores,
     get_all_plans,
     get_plan_by_id,
@@ -25,6 +25,8 @@ from .database import (
     init_db,
     save_plan,
     save_quiz_attempt,
+    set_active_plan,
+    delete_plan_by_id,
 )
 
 
@@ -132,8 +134,10 @@ def root():
 @app.get("/state")
 def get_state() -> dict[str, Any]:
     """Return the current local StudyFlow state."""
+    active = get_active_plan()
     return {
-        "latest_plan": get_latest_plan(),
+        "latest_plan": active,
+        "active_plan_id": active["id"] if active else None,
         "mastery_scores": get_mastery_scores(),
     }
 
@@ -151,6 +155,25 @@ def get_plan(plan_id: int):
     if plan is None:
         return {"error": "Plan not found"}, 404
     return plan
+
+
+@app.post("/plans/{plan_id}/activate")
+def activate_plan(plan_id: int):
+    """Set a plan as the active plan."""
+    plan = get_plan_by_id(plan_id)
+    if plan is None:
+        return {"error": "Plan not found"}, 404
+    set_active_plan(plan_id)
+    return {"status": "ok", "active_plan_id": plan_id}
+
+
+@app.delete("/plans/{plan_id}")
+def delete_plan(plan_id: int):
+    """Delete a plan and all its related data."""
+    success = delete_plan_by_id(plan_id)
+    if not success:
+        return {"error": "Plan not found"}, 404
+    return {"status": "ok", "deleted_plan_id": plan_id}
 
 
 @app.patch("/tasks/{task_id}/complete")
