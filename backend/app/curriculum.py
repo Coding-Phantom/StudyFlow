@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import List
 import ollama
 import json
+from .config import LLAMA_MODEL
 
 # Ex: topic = "calculus", subtopics = "limits, derivatives, integrals"
 class Topic(BaseModel):
@@ -12,7 +13,7 @@ class Topic(BaseModel):
 def generate_curriculum(subject: str) -> List[Topic]:
 
     response = ollama.chat(
-        model="llama3.1:8b",
+        model=LLAMA_MODEL,
         messages=[
             {
                 "role": "system",

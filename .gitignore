@@ -48,3 +48,6 @@ AGENTS.md
 
 # Logs
 *.log
+
+# npm cache
+frontend/.npm-cache/
