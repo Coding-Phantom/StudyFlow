@@ -311,12 +311,13 @@ def get_plan_by_id(plan_id: int) -> Optional[dict[str, Any]]:
         return _hydrate_plan(connection, plan)
 
 
-def complete_task(task_id: int) -> bool:
+def toggle_task(task_id: int) -> bool:
+    """Toggle the completed status of a study task."""
     with get_connection() as connection:
         cursor = connection.execute(
             """
             UPDATE study_tasks
-            SET completed = 1
+            SET completed = CASE WHEN completed = 1 THEN 0 ELSE 1 END
             WHERE id = ?
             """,
             (task_id,),
@@ -429,7 +430,7 @@ def _hydrate_topic(connection: sqlite3.Connection, topic: sqlite3.Row) -> dict[s
 def _hydrate_day_plan(connection: sqlite3.Connection, day_plan: sqlite3.Row) -> dict[str, Any]:
     tasks = connection.execute(
         """
-        SELECT topic, subtopic, completed
+        SELECT id, topic, subtopic, completed
         FROM study_tasks
         WHERE day_plan_id = ?
         ORDER BY position

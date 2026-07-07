@@ -41,19 +41,39 @@ def _answers_match(user_answer: str, correct_answer: str, question: Question) ->
     if ua in ca or ca in ua:
         return True
 
-    # 3. For short answer, be extra generous:
-    #    Check if the key words from the correct answer appear in the user answer
+    # 3. For short answer, be VERY generous:
+    #    Accept if the user demonstrates understanding of the core concept
     if question.type == "short_answer":
         ca_words = set(ca.split())
         ua_words = set(ua.split())
-        # If all significant words from correct answer appear in user answer
+
+        # If user answer is completely empty, it's incorrect
+        if not ua:
+            return False
+
+        # All significant words from correct answer appear in user answer
         # (ignore very short words like "is", "to", "of", etc.)
         significant = {w for w in ca_words if len(w) > 2}
         if significant and significant.issubset(ua_words):
             return True
-        # Also if more than half the correct answer words match
-        if ca_words and len(ca_words & ua_words) >= len(ca_words) * 0.5:
+
+        # At least 30% word overlap (more generous than 50%)
+        if ca_words and len(ca_words & ua_words) >= len(ca_words) * 0.3:
             return True
+
+        # If at least one significant word from the correct answer appears,
+        # and the user answer is reasonably substantial (>= 3 chars)
+        if ua and len(ua) >= 3:
+            for w in ca_words:
+                if len(w) > 2 and w in ua_words:
+                    return True
+
+        # Check if user's answer is a plausible short-form or abbreviation
+        # by seeing if most of their words appear in the correct answer
+        if ua_words and len(ua_words) >= 1:
+            overlap = len(ca_words & ua_words)
+            if overlap >= len(ua_words) * 0.5:
+                return True
 
     # 4. Multiple choice: if correct_answer is a letter (A/B/C/D), compare by index
     if question.type == "multiple_choice" and question.options:

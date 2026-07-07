@@ -21,7 +21,7 @@ from .database import (
     get_mastery_scores,
     get_all_plans,
     get_plan_by_id,
-    complete_task,
+    toggle_task,
     init_db,
     save_plan,
     save_quiz_attempt,
@@ -177,9 +177,9 @@ def delete_plan(plan_id: int):
 
 
 @app.patch("/tasks/{task_id}/complete")
-def mark_task_complete(task_id: int):
-    """Mark a study task as completed."""
-    success = complete_task(task_id)
+def mark_task_toggle(task_id: int):
+    """Toggle a study task's completed status."""
+    success = toggle_task(task_id)
     if not success:
         return {"error": "Task not found"}, 404
     return {"status": "ok", "task_id": task_id}
