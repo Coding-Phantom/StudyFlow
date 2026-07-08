@@ -5,6 +5,7 @@ import PlansPage from "./pages/PlansPage";
 import LearnPage from "./pages/LearnPage";
 import QuizPage from "./pages/QuizPage";
 import CalendarPage from "./pages/CalendarPage";
+import PlannerPage from "./pages/PlannerPage";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="plans" element={<PlansPage />} />
+          <Route path="plan/new" element={<PlannerPage />} />
           <Route path="learn" element={<LearnPage />} />
           <Route path="quiz" element={<QuizPage />} />
           <Route path="calendar" element={<CalendarPage />} />

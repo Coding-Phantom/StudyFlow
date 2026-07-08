@@ -7,6 +7,9 @@ import type {
   UserAnswer,
   EvaluateResult,
   AdaptationResult,
+  ChatMessage,
+  PlannerChatResponse,
+  CreatePlanFromChat,
   AppState,
 } from "../types";
 
@@ -94,6 +97,22 @@ export const api = {
     answers: UserAnswer[];
   }) =>
     request<EvaluateResult>("/evaluate", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  // Planner Chat
+  plannerChat: (data: {
+    messages: ChatMessage[];
+    message: string;
+  }) =>
+    request<PlannerChatResponse>("/planner/chat", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  plannerCreate: (data: CreatePlanFromChat) =>
+    request<Plan>("/planner/create", {
       method: "POST",
       body: JSON.stringify(data),
     }),

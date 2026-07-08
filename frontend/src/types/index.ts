@@ -90,6 +90,29 @@ export interface MasteryScore {
   updated_at: string;
 }
 
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface PlannerChatResponse {
+  reply: string;
+  plan_ready: boolean;
+  plan_data: {
+    subject: string;
+    deadline: string;
+    daily_hours: number;
+    curriculum: Topic[];
+  } | null;
+}
+
+export interface CreatePlanFromChat {
+  subject: string;
+  deadline: string;
+  daily_hours: number;
+  curriculum: Topic[];
+}
+
 export interface AppState {
   latest_plan: Plan | null;
   active_plan_id: number | null;

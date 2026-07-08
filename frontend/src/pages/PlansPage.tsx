@@ -64,7 +64,27 @@ export default function PlansPage() {
         <p className="text-gray-500 mt-1.5">Create a new plan or view your existing ones.</p>
       </div>
 
-      <PlanForm onPlanCreated={handlePlanCreated} />
+      <div className="flex items-center gap-3">
+        <div className="flex-1">
+          <PlanForm onPlanCreated={handlePlanCreated} />
+        </div>
+        <div className="hidden sm:flex w-px h-48 bg-border self-center" />
+        <div className="shrink-0 text-center">
+          <p className="text-sm text-text-secondary mb-3 font-medium">or</p>
+          <a
+            href="/plan/new"
+            className="inline-flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-xl transition-all duration-200 shadow-md bg-gradient-to-r from-[#5eead4] to-[#c084fc] text-deep-bg hover:shadow-lg hover:shadow-[#5eead4]/[0.25]"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            Plan with AI Chat
+          </a>
+          <p className="text-xs text-text-muted mt-2">
+            Describe your goals in a conversation
+          </p>
+        </div>
+      </div>
 
       <div>
         <h2 className="text-lg font-bold text-gray-900 mb-4">Your Plans</h2>

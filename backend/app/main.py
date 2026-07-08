@@ -16,6 +16,12 @@ from .note import generate_notes, StudyNotes
 from .quiz import generate_quiz, Quiz, Question
 from .evaluation import evaluate_quiz, EvaluateResult
 from .adaptation import recommend_adaptation, AdaptationResult
+from .planner_agent import (
+    process_chat,
+    PlannerChatRequest,
+    PlannerChatResponse,
+    ChatMessage,
+)
 from .database import (
     get_active_plan,
     get_mastery_scores,
@@ -216,6 +222,57 @@ def create_plan(request: PlanRequest):
         schedule=schedule,
     )
 
+
+# ── Conversational Planning Agent ──────────────────────────────────────
+
+
+class CreatePlanFromChat(BaseModel):
+    subject: str
+    deadline: date
+    daily_hours: float
+    curriculum: List[Topic]
+
+
+@app.post("/planner/chat", response_model=PlannerChatResponse)
+def planner_chat(request: PlannerChatRequest):
+    """Send a message to the conversational planning agent."""
+    return process_chat(
+        messages=request.messages,
+        new_message=request.message,
+    )
+
+
+@app.post("/planner/create", response_model=PlanResponse)
+def planner_create_plan(request: CreatePlanFromChat):
+    """Finalize a plan from conversational planning output."""
+    today = date.today()
+    deadline = request.deadline
+    total_days = max(1, (deadline - today).days)
+
+    schedule = build_schedule(request.curriculum, today, total_days)
+    plan_id = save_plan(
+        subject=request.subject,
+        deadline=deadline,
+        daily_hours=request.daily_hours,
+        total_days=total_days,
+        start_date=today,
+        curriculum=request.curriculum,
+        schedule=schedule,
+    )
+
+    return PlanResponse(
+        plan_id=plan_id,
+        subject=request.subject,
+        deadline=deadline,
+        daily_hours=request.daily_hours,
+        total_days=total_days,
+        start_date=today,
+        curriculum=request.curriculum,
+        schedule=schedule,
+    )
+
+
+# ── Study Notes ────────────────────────────────────────────────────────
 
 @app.post("/notes", response_model=StudyNotes)
 def get_study_notes(request: NotesRequest):

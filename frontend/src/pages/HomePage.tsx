@@ -43,15 +43,26 @@ export default function HomePage() {
         <p className="text-gray-500 mt-4 max-w-lg mx-auto text-lg leading-relaxed">
           Your adaptive learning coach. Create a study plan, get AI-generated notes, test yourself with quizzes, and track your mastery.
         </p>
-        <Link
-          to="/plans"
-          className="inline-flex items-center gap-2 mt-8 bg-primary text-white px-7 py-3 rounded-xl text-base font-semibold hover:bg-primary-dark transition-all duration-200 shadow-lg shadow-indigo-500/20 hover:shadow-xl hover:shadow-indigo-500/25 hover:-translate-y-0.5"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Create Your First Plan
-        </Link>
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
+            <Link
+              to="/plan/new"
+              className="inline-flex items-center gap-2 px-8 py-3 text-base font-semibold rounded-xl transition-all duration-200 shadow-md bg-gradient-to-r from-[#5eead4] to-[#c084fc] text-deep-bg hover:shadow-lg hover:shadow-[#5eead4]/[0.25]"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              Plan with AI Chat
+            </Link>
+            <Link
+              to="/plans"
+              className="btn-primary inline-flex text-base px-8 py-3"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Quick Form
+            </Link>
+          </div>
 
         <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-5 max-w-xl mx-auto">
           {[
