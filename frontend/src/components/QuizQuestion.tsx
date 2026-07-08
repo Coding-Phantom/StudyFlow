@@ -177,17 +177,20 @@ export default function QuizQuestion({
             const isRightOption = showResult && i === correctOptionIndex;
             const isWrongSelection = showResult && isSelected && !isRightOption;
 
-            let optBorderClass = "border-border hover:border-accent/30 hover:bg-accent/5";
+            let optBorderClass = "border-white/10 hover:border-accent/30 hover:bg-accent/5";
             if (isRightOption) optBorderClass = "border-success/40 bg-success-muted/30";
             else if (isWrongSelection) optBorderClass = "border-danger/40 bg-danger-muted/30";
+
+            const selectedClass = isSelected && !showResult ? "border-accent/40 bg-accent/10" : "";
 
             return (
               <label
                 key={i}
-                className={`flex items-center gap-3 px-3.5 py-3 rounded-xl border cursor-pointer transition-all duration-200 ${
+                className={`flex items-center gap-3 px-3.5 py-3 rounded-xl border cursor-pointer transition-colors duration-100 ${
                   showResult ? "cursor-default" : ""
-                } ${optBorderClass} ${isSelected && !showResult ? "border-accent/40 bg-accent/10 shadow-sm" : ""}`}
+                } ${optBorderClass} ${selectedClass} ${!showResult ? "focus-within:ring-2 focus-within:ring-accent/30 focus-within:ring-offset-2 focus-within:ring-offset-deep-bg" : ""}`}
               >
+                {/* Hidden radio for events + accessibility */}
                 <input
                   type="radio"
                   name={`q-${question.id}`}
@@ -195,9 +198,20 @@ export default function QuizQuestion({
                   checked={isSelected}
                   onChange={() => !showResult && onChange(option)}
                   disabled={showResult}
-                  className="w-4 h-4 text-accent focus:ring-accent/30 border-border"
+                  className="sr-only"
                 />
-                <span className="text-sm text-text-secondary flex-1">{option}</span>
+                {/* Custom radio dot */}
+                <span
+                  aria-hidden="true"
+                  className={`relative w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors duration-100 ${
+                    isSelected
+                      ? "border-accent bg-accent/20"
+                      : "border-white/20 bg-transparent"
+                  }`}
+                >
+                  {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-accent" />}
+                </span>
+                <span className="text-sm text-text-secondary flex-1 select-none">{option}</span>
                 {isRightOption && (
                   <svg className="w-4 h-4 text-success shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
