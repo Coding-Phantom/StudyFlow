@@ -11,7 +11,7 @@ interface Props {
 export default function TaskList({ tasks, onComplete, onGenerateNotes, loadingTaskId }: Props) {
   if (tasks.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-400">
+      <div className="text-center py-8 text-text-muted">
         <p>No tasks scheduled for today.</p>
         <p className="text-sm mt-1">Create a study plan or check back on a study day.</p>
       </div>
@@ -27,7 +27,7 @@ export default function TaskList({ tasks, onComplete, onGenerateNotes, loadingTa
         <div
           key={task.id ?? idx}
           className={`card px-4 py-3.5 flex items-center gap-3 transition-all duration-200 ${
-            task.completed ? "border-green-200/70 bg-green-50/60" : ""
+            task.completed ? "border-success/20 bg-success-muted/30" : ""
           }`}
         >
           {/* Checkbox */}
@@ -36,8 +36,8 @@ export default function TaskList({ tasks, onComplete, onGenerateNotes, loadingTa
             disabled={!task.id}
             className={`shrink-0 w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-200 ${
               task.completed
-                ? "bg-green-500 border-green-500 text-white shadow-sm shadow-green-200"
-                : "border-gray-300 hover:border-indigo-400 hover:shadow-sm"
+                ? "bg-success border-success text-deep-bg shadow-sm shadow-success/20"
+                : "border-border hover:border-accent hover:shadow-sm"
             } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {task.completed === 1 && (
@@ -49,11 +49,11 @@ export default function TaskList({ tasks, onComplete, onGenerateNotes, loadingTa
 
           {/* Task info */}
           <div className="flex-1 min-w-0">
-            <p className={`text-sm font-medium ${task.completed ? "text-gray-400 line-through" : "text-gray-900"}`}>
+            <p className={`text-sm font-medium ${task.completed ? "text-text-muted line-through" : "text-text-primary"}`}>
               {task.topic}
             </p>
             {task.subtopic && (
-              <p className={`text-xs mt-0.5 ${task.completed ? "text-gray-300" : "text-gray-500"}`}>
+              <p className={`text-xs mt-0.5 ${task.completed ? "text-text-muted/60" : "text-text-secondary"}`}>
                 {task.subtopic}
               </p>
             )}
@@ -64,7 +64,7 @@ export default function TaskList({ tasks, onComplete, onGenerateNotes, loadingTa
             <button
               onClick={() => onGenerateNotes?.(task)}
               disabled={loadingTaskId === task.id}
-              className="shrink-0 text-xs bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg font-semibold hover:bg-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              className="shrink-0 text-xs bg-accent/10 text-accent px-3 py-1.5 rounded-lg font-semibold hover:bg-accent/15 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 border border-accent/20"
             >
               {loadingTaskId === task.id ? (
                 <span className="flex items-center gap-1.5">

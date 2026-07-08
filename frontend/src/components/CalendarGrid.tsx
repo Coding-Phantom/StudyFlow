@@ -37,7 +37,7 @@ export default function CalendarGrid({ year, month, schedule, onDayClick }: Prop
       {/* Day headers */}
       <div className="grid grid-cols-7 mb-1">
         {DAY_NAMES.map((name) => (
-          <div key={name} className="text-center text-xs font-semibold text-gray-400 py-2 tracking-wide">
+          <div key={name} className="text-center text-xs font-semibold text-text-muted py-2 tracking-wide">
             {name}
           </div>
         ))}
@@ -62,13 +62,13 @@ export default function CalendarGrid({ year, month, schedule, onDayClick }: Prop
               onClick={() => onDayClick?.(dateStr)}
               className={`
                 aspect-square rounded-xl flex flex-col items-center justify-center text-sm transition-all duration-200
-                ${isToday ? "bg-indigo-50 ring-2 ring-indigo-500 ring-offset-2" : ""}
-                ${dayPlan ? "hover:bg-indigo-50/60 cursor-pointer" : "cursor-default"}
+                ${isToday ? "bg-accent/10 ring-2 ring-accent ring-offset-2 ring-offset-deep-bg" : ""}
+                ${dayPlan ? "hover:bg-accent/5 cursor-pointer" : "cursor-default"}
               `}
             >
               <span
                 className={`font-semibold text-sm ${
-                  isToday ? "text-indigo-700" : dayPlan ? "text-gray-800" : "text-gray-300"
+                  isToday ? "text-accent" : dayPlan ? "text-text-primary" : "text-text-muted/40"
                 }`}
               >
                 {day}
@@ -78,12 +78,12 @@ export default function CalendarGrid({ year, month, schedule, onDayClick }: Prop
                   <span
                     className={`w-1.5 h-1.5 rounded-full ring-1 ${
                       completedCount === taskCount
-                        ? "bg-green-400 ring-green-200"
-                        : "bg-indigo-400 ring-indigo-200"
+                        ? "bg-success ring-success/30"
+                        : "bg-accent ring-accent/30"
                     }`}
                   />
                   {completedCount < taskCount && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 ring-1 ring-amber-200" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-warning ring-1 ring-warning/30" />
                   )}
                 </div>
               )}

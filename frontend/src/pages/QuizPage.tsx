@@ -151,17 +151,17 @@ export default function QuizPage() {
   // No plan
   if (!planLoading && !plan) {
     return (
-      <div className="text-center py-20">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-indigo-500/20">
-          <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="text-center py-20 animate-fade-in">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#5eead4] to-[#c084fc] flex items-center justify-center mx-auto mb-5 shadow-lg shadow-[#5eead4]/[0.15]">
+          <svg className="w-8 h-8 text-deep-bg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">No Study Plan Yet</h1>
-        <p className="text-gray-500 mt-2">Create a study plan before taking quizzes.</p>
+        <h1 className="text-2xl font-bold text-text-primary">No Study Plan Yet</h1>
+        <p className="text-text-secondary mt-2">Create a study plan before taking quizzes.</p>
         <a
           href="/plans"
-          className="inline-flex items-center gap-2 mt-6 bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-dark transition-all duration-200 shadow-md shadow-indigo-500/15 hover:shadow-lg hover:shadow-indigo-500/20 hover:-translate-y-0.5"
+          className="btn-primary mt-6"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -173,10 +173,10 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Quiz</h1>
-        <p className="text-gray-500 mt-1.5">
+        <h1 className="text-3xl font-bold tracking-tight text-text-primary">Quiz</h1>
+        <p className="text-text-secondary mt-1.5">
           {phase === "setup" && "Select a topic and generate a quiz."}
           {phase === "taking" && `Question ${currentIndex + 1} of ${questions.length}`}
           {phase === "results" && "Your results"}
@@ -187,26 +187,26 @@ export default function QuizPage() {
       {phase === "setup" && (
         <div className="card p-6 max-w-lg mx-auto space-y-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-md shadow-indigo-500/20">
-              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#5eead4] to-[#c084fc] flex items-center justify-center shadow-md shadow-[#5eead4]/[0.2]">
+              <svg className="w-5 h-5 text-deep-bg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Configure Quiz</h2>
-              <p className="text-sm text-gray-500">Choose a topic and number of questions</p>
+              <h2 className="text-lg font-bold text-text-primary">Configure Quiz</h2>
+              <p className="text-sm text-text-secondary">Choose a topic and number of questions</p>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Topic</label>
+            <label className="block text-sm font-medium text-text-secondary mb-1.5">Topic</label>
             <select
               value={selectedTopic}
               onChange={(e) => {
                 setSelectedTopic(e.target.value);
                 setSelectedSubtopic("");
               }}
-              className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all duration-200 bg-white"
+              className="w-full"
             >
               <option value="">Select a topic...</option>
               {topics.map((t) => (
@@ -219,13 +219,13 @@ export default function QuizPage() {
 
           {subtopics.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Subtopic <span className="text-gray-400 font-normal">(optional)</span>
+              <label className="block text-sm font-medium text-text-secondary mb-1.5">
+                Subtopic <span className="text-text-muted font-normal">(optional)</span>
               </label>
               <select
                 value={selectedSubtopic}
                 onChange={(e) => setSelectedSubtopic(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all duration-200 bg-white"
+                className="w-full"
               >
                 <option value="">All subtopics</option>
                 {subtopics.map((s) => (
@@ -238,8 +238,8 @@ export default function QuizPage() {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Number of Questions: <span className="text-indigo-600 font-bold">{numQuestions}</span>
+            <label className="block text-sm font-medium text-text-secondary mb-2">
+              Number of Questions: <span className="text-accent font-bold">{numQuestions}</span>
             </label>
             <input
               type="range"
@@ -247,16 +247,16 @@ export default function QuizPage() {
               max={10}
               value={numQuestions}
               onChange={(e) => setNumQuestions(Number(e.target.value))}
-              className="w-full accent-indigo-600 h-2 rounded-full appearance-none bg-gray-200 cursor-pointer"
+              className="w-full"
             />
-            <div className="flex justify-between text-xs text-gray-400 mt-1">
+            <div className="flex justify-between text-xs text-text-muted mt-1">
               <span>3</span>
               <span>10</span>
             </div>
           </div>
 
           {quizError && (
-            <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-lg px-3.5 py-2.5 border border-red-100">
+            <div className="flex items-center gap-2 text-sm text-danger bg-danger-muted/30 rounded-lg px-3.5 py-2.5 border border-danger/20">
               <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -267,7 +267,7 @@ export default function QuizPage() {
           <button
             onClick={handleStartQuiz}
             disabled={!selectedTopic || quizLoading}
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2.5 px-4 rounded-xl text-sm font-semibold hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-indigo-500/20 hover:shadow-xl hover:shadow-indigo-500/25 hover:-translate-y-0.5"
+            className="w-full btn-primary justify-center py-2.5"
           >
             {quizLoading ? (
               <span className="flex items-center justify-center gap-2">
@@ -295,16 +295,16 @@ export default function QuizPage() {
         <div className="max-w-2xl mx-auto space-y-5">
           {/* Progress bar with labels */}
           <div className="flex items-center gap-4">
-            <span className="text-xs font-semibold text-gray-400 w-16">Progress</span>
-            <div className="flex-1 bg-gray-200/80 rounded-full h-2.5 overflow-hidden">
+            <span className="text-xs font-semibold text-text-muted w-16">Progress</span>
+            <div className="flex-1 bg-white/[0.06] rounded-full h-2.5 overflow-hidden">
               <div
-                className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2.5 rounded-full transition-all duration-500 ease-out"
+                className="bg-gradient-to-r from-[#5eead4] to-[#c084fc] h-2.5 rounded-full transition-all duration-500 ease-out"
                 style={{
                   width: `${((currentIndex + 1) / questions.length) * 100}%`,
                 }}
               />
             </div>
-            <span className="text-xs font-semibold text-indigo-600 w-12 text-right">
+            <span className="text-xs font-semibold text-accent w-12 text-right">
               {currentIndex + 1}/{questions.length}
             </span>
           </div>
@@ -318,8 +318,8 @@ export default function QuizPage() {
           />
 
           {/* AI Disclaimer */}
-          <div className="flex items-start gap-2 text-xs text-gray-400 bg-gray-50/80 rounded-xl px-3.5 py-2.5 border border-gray-100">
-            <svg className="w-3.5 h-3.5 text-gray-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="flex items-start gap-2 text-xs text-text-muted bg-white/[0.03] rounded-xl px-3.5 py-2.5 border border-border">
+            <svg className="w-3.5 h-3.5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p>AI can make mistakes. Answers are graded generously, but you can review and override results after submission.</p>
@@ -327,7 +327,7 @@ export default function QuizPage() {
 
           {/* Error display */}
           {quizError && (
-            <div className="card border-red-200/60 bg-red-50/60 px-4 py-3 text-sm text-red-700 flex items-center gap-2">
+            <div className="card px-4 py-3 text-sm text-danger flex items-center gap-2 border-danger/20 bg-danger-muted/30">
               <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -343,7 +343,7 @@ export default function QuizPage() {
             <button
               onClick={goPrev}
               disabled={currentIndex === 0}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
+              className="btn-secondary"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -351,7 +351,7 @@ export default function QuizPage() {
               Previous
             </button>
 
-            <span className="text-xs font-medium text-gray-400 bg-gray-100 px-3 py-1.5 rounded-full">
+            <span className="text-xs font-medium text-text-muted bg-white/[0.04] px-3 py-1.5 rounded-full">
               {answers.size} of {questions.length} answered
             </span>
 
@@ -359,7 +359,7 @@ export default function QuizPage() {
               <button
                 onClick={goNext}
                 disabled={!currentAnswered}
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md shadow-indigo-500/15"
+                className="btn-primary"
               >
                 Next
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -370,7 +370,7 @@ export default function QuizPage() {
               <button
                 onClick={handleSubmit}
                 disabled={!allAnswered || evaluating}
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md shadow-green-500/15"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 shadow-md bg-gradient-to-r from-[#34d399] to-[#2dd4bf] text-deep-bg hover:shadow-lg hover:shadow-[#34d399]/[0.25] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {evaluating ? (
                   <span className="flex items-center gap-2">
@@ -398,7 +398,7 @@ export default function QuizPage() {
       {phase === "results" && (
         <>
           {quizError && (
-            <div className="card border-red-200/60 bg-red-50/60 px-4 py-3 text-sm text-red-700 flex items-center gap-2">
+            <div className="card px-4 py-3 text-sm text-danger flex items-center gap-2 border-danger/20 bg-danger-muted/30">
               <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -419,15 +419,15 @@ export default function QuizPage() {
             />
           ) : (
             <div className="card p-12 text-center">
-              <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                <svg className="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <div className="w-14 h-14 rounded-2xl bg-surface-hover flex items-center justify-center mx-auto mb-4 border border-border">
+                <svg className="w-7 h-7 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p className="text-gray-500 font-medium">No results available.</p>
+              <p className="text-text-secondary font-medium">No results available.</p>
               <button
                 onClick={() => setPhase("setup")}
-                className="mt-3 text-indigo-600 font-semibold underline hover:no-underline text-sm inline-flex items-center gap-1"
+                className="mt-3 text-accent font-semibold underline hover:no-underline text-sm inline-flex items-center gap-1"
               >
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

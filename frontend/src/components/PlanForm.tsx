@@ -39,42 +39,42 @@ export default function PlanForm({ onPlanCreated }: Props) {
   return (
     <form onSubmit={handleSubmit} className="card p-6 space-y-5">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-md shadow-indigo-500/20">
-          <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#5eead4] to-[#c084fc] flex items-center justify-center shadow-md shadow-[#5eead4]/[0.2]">
+          <svg className="w-5 h-5 text-deep-bg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
         </div>
         <div>
-          <h2 className="text-lg font-bold text-gray-900">Create a New Study Plan</h2>
-          <p className="text-sm text-gray-500">Set your subject and deadline to get started</p>
+          <h2 className="text-lg font-bold text-text-primary">Create a New Study Plan</h2>
+          <p className="text-sm text-text-secondary">Set your subject and deadline to get started</p>
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">Subject</label>
+        <label className="block text-sm font-medium text-text-secondary mb-1.5">Subject</label>
         <input
           type="text"
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
           placeholder="e.g., Calculus, Python, Spanish..."
-          className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all duration-200 placeholder:text-gray-400"
+          className="w-full"
           required
         />
       </div>
 
       <div className="flex gap-4">
         <div className="flex-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Deadline</label>
+          <label className="block text-sm font-medium text-text-secondary mb-1.5">Deadline</label>
           <input
             type="date"
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}
-            className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all duration-200"
+            className="w-full"
             required
           />
         </div>
         <div className="w-36">
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Hours / Day</label>
+          <label className="block text-sm font-medium text-text-secondary mb-1.5">Hours / Day</label>
           <input
             type="number"
             min={0.5}
@@ -82,7 +82,7 @@ export default function PlanForm({ onPlanCreated }: Props) {
             step={0.5}
             value={dailyHours}
             onChange={(e) => setDailyHours(Number(e.target.value))}
-            className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all duration-200"
+            className="w-full"
           />
         </div>
       </div>
@@ -93,7 +93,7 @@ export default function PlanForm({ onPlanCreated }: Props) {
       </AIDisclaimer>
 
       {error && (
-        <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-lg px-3.5 py-2.5 border border-red-100">
+        <div className="flex items-center gap-2 text-sm text-danger bg-danger-muted/30 rounded-lg px-3.5 py-2.5 border border-danger/20">
           <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
@@ -104,7 +104,7 @@ export default function PlanForm({ onPlanCreated }: Props) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-2.5 px-4 rounded-xl text-sm font-semibold hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-indigo-500/20 hover:shadow-xl hover:shadow-indigo-500/25 hover:-translate-y-0.5"
+        className="w-full btn-primary justify-center py-2.5"
       >
         {loading ? (
           <span className="flex items-center justify-center gap-2">

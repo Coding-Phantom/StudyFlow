@@ -90,17 +90,17 @@ export default function LearnPage() {
   // No plan exists
   if (!loading && !plan) {
     return (
-      <div className="text-center py-20">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-indigo-500/20">
-          <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="text-center py-20 animate-fade-in">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#5eead4] to-[#c084fc] flex items-center justify-center mx-auto mb-5 shadow-lg shadow-[#5eead4]/[0.15]">
+          <svg className="w-8 h-8 text-deep-bg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
           </svg>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">No Study Plan Yet</h1>
-        <p className="text-gray-500 mt-2 max-w-sm mx-auto">Create a study plan first, then come here to start learning.</p>
+        <h1 className="text-2xl font-bold text-text-primary">No Study Plan Yet</h1>
+        <p className="text-text-secondary mt-2 max-w-sm mx-auto">Create a study plan first, then come here to start learning.</p>
         <a
           href="/plans"
-          className="inline-flex items-center gap-2 mt-6 bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-dark transition-all duration-200 shadow-md shadow-indigo-500/15 hover:shadow-lg hover:shadow-indigo-500/20 hover:-translate-y-0.5"
+          className="btn-primary mt-6"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -112,13 +112,13 @@ export default function LearnPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-            {plan ? <><span className="text-gradient">{plan.subject}</span></> : "Learn"}
+          <h1 className="text-3xl font-bold tracking-tight text-text-primary">
+            {plan ? <><span className="text-gradient-aurora">{plan.subject}</span></> : "Learn"}
           </h1>
-          <p className="text-gray-500 mt-1">
+          <p className="text-text-secondary mt-1">
             {new Date().toLocaleDateString("en-US", {
               weekday: "long",
               month: "long",
@@ -127,7 +127,7 @@ export default function LearnPage() {
           </p>
         </div>
         {plan && (
-          <a href="/quiz" className="inline-flex items-center gap-2 bg-white text-gray-700 px-4 py-2.5 rounded-xl text-sm font-medium border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 shadow-sm">
+          <a href="/quiz" className="btn-secondary">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -138,7 +138,7 @@ export default function LearnPage() {
 
       {/* Loading state */}
       {loading && (
-        <div className="flex items-center justify-center py-16 text-gray-400">
+        <div className="flex items-center justify-center py-16 text-text-muted">
           <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -148,7 +148,7 @@ export default function LearnPage() {
       )}
 
       {error && (
-        <div className="card border-red-200/60 bg-red-50/60 px-4 py-3 text-sm text-red-700 flex items-center gap-2">
+        <div className="card px-4 py-3 text-sm text-danger flex items-center gap-2 border-danger/20 bg-danger-muted/30">
           <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
@@ -163,10 +163,10 @@ export default function LearnPage() {
       {!loading && (
         <section>
           <div className="flex items-center gap-2 mb-4">
-            <svg className="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            <h2 className="text-lg font-bold text-gray-900">Today's Agenda</h2>
+            <h2 className="text-lg font-bold text-text-primary">Today's Agenda</h2>
           </div>
           <TaskList
             tasks={todayTasks}
@@ -181,13 +181,13 @@ export default function LearnPage() {
       {(notesLoading || notes || notesError) && (
         <section className="card p-6">
           <div className="flex items-center gap-2 mb-4">
-            <svg className="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>
-            <h2 className="text-lg font-bold text-gray-900">
+            <h2 className="text-lg font-bold text-text-primary">
               Study Notes
               {notesTask && (
-                <span className="text-sm font-normal text-gray-500 ml-2">
+                <span className="text-sm font-normal text-text-secondary ml-2">
                   — {notesTask.topic}{notesTask.subtopic ? `: ${notesTask.subtopic}` : ""}
                 </span>
               )}
@@ -195,7 +195,7 @@ export default function LearnPage() {
           </div>
 
           {notesLoading && (
-            <div className="flex items-center justify-center py-12 text-gray-400">
+            <div className="flex items-center justify-center py-12 text-text-muted">
               <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -205,7 +205,7 @@ export default function LearnPage() {
           )}
 
           {notesError && (
-            <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-lg px-3.5 py-2.5 border border-red-100">
+            <div className="flex items-center gap-2 text-sm text-danger bg-danger-muted/30 rounded-lg px-3.5 py-2.5 border border-danger/20">
               <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -220,13 +220,13 @@ export default function LearnPage() {
       {/* No tasks today */}
       {!loading && !error && todayTasks.length === 0 && !notesLoading && (
         <div className="card p-12 text-center">
-          <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          <div className="w-14 h-14 rounded-2xl bg-surface-hover flex items-center justify-center mx-auto mb-4 border border-border">
+            <svg className="w-7 h-7 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
-          <p className="text-gray-500 font-medium">Nothing scheduled for today.</p>
-          <p className="text-sm text-gray-400 mt-1">Take a quiz or review past material.</p>
+          <p className="text-text-secondary font-medium">Nothing scheduled for today.</p>
+          <p className="text-sm text-text-muted mt-1">Take a quiz or review past material.</p>
         </div>
       )}
     </div>
