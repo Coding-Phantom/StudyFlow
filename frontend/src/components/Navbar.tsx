@@ -1,41 +1,37 @@
 import { NavLink } from "react-router-dom";
 
 const links = [
-  { to: "/", label: "Home" },
-  { to: "/plans", label: "Study Plans" },
-  { to: "/learn", label: "Learn" },
-  { to: "/quiz", label: "Quiz" },
-  { to: "/calendar", label: "Calendar" },
+  { to: "/", label: "Overview", code: "01" },
+  { to: "/plans", label: "Plans", code: "02" },
+  { to: "/learn", label: "Study", code: "03" },
+  { to: "/quiz", label: "Evaluate", code: "04" },
+  { to: "/calendar", label: "Timeline", code: "05" },
 ];
 
 export default function Navbar() {
   return (
-    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-200/60">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+    <nav className="app-nav">
+      <div className="nav-inner">
         <NavLink
           to="/"
-          className="text-lg font-extrabold tracking-tight text-gradient"
+          className="brand"
         >
-          StudyFlow
+          <span className="brand-mark"><i /><i /><i /></span>
+          <span>STUDY<br/><b>FLOW</b></span>
         </NavLink>
-        <div className="flex gap-1">
+        <div className="nav-links">
           {links.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
               end={link.to === "/"}
-              className={({ isActive }) =>
-                `px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  isActive
-                    ? "bg-indigo-50/80 text-indigo-700 shadow-sm"
-                    : "text-gray-500 hover:text-gray-800 hover:bg-gray-100/60"
-                }`
-              }
+              className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
             >
-              {link.label}
+              <small>{link.code}</small><span>{link.label}</span>
             </NavLink>
           ))}
         </div>
+        <div className="nav-status"><span />SYSTEM<br/>ADAPTIVE</div>
       </div>
     </nav>
   );
